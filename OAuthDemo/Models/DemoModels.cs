@@ -7,6 +7,12 @@ using System.Web;
 
 namespace OAuthDemo.Models
 {
+    // WARNING: This is a demonstration application for educational purposes only
+    // OAuth credentials are stored in plaintext in the database to simplify the demo
+    // PRODUCTION APPLICATIONS MUST encrypt sensitive data at rest using:
+    // - ASP.NET Data Protection API
+    // - SQL Server column-level encryption
+    // - Azure Key Vault or similar key management service
     public class Demo
     {
         public const string RetrieveErrorResponse = "Error Retrieving the Access Token";

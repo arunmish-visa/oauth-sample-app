@@ -73,6 +73,8 @@ namespace OAuthDemo.Controllers
             SavedModel.GrantType = input.GrantType;
             SavedModel.Code = input.Code;
             SavedModel.ClientId = input.ClientId;
+            // WARNING: Demo application only - credentials stored in plaintext for educational purposes
+            // PRODUCTION CODE MUST encrypt credentials at rest using ASP.NET Data Protection API or column-level encryption
             SavedModel.ClientSecret = input.ClientSecret;
 
             try
