@@ -44,19 +44,19 @@ namespace OAuthDemo.Controllers
         }
 
         // step 2
-        public ActionResult RedirectMerchant(Demo InputModel)
+        public ActionResult RedirectMerchant(RedirectMerchantInput input)
         {
             System.Diagnostics.Debug.WriteLine(_context.Demos.ToString());
-            var SavedModel = GetUserDemo(InputModel.Id);
+            var SavedModel = GetUserDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
-            SavedModel.ClientId = InputModel.ClientId;
-            SavedModel.RedirectUri = InputModel.RedirectUri;
-            SavedModel.Read = InputModel.Read;
-            SavedModel.Write = InputModel.Write;
-            SavedModel.State = InputModel.State;
-            SavedModel.Sub = InputModel.Sub;
+            SavedModel.ClientId = input.ClientId;
+            SavedModel.RedirectUri = input.RedirectUri;
+            SavedModel.Read = input.Read;
+            SavedModel.Write = input.Write;
+            SavedModel.State = input.State;
+            SavedModel.Sub = input.Sub;
             SavedModel.updateRedirectMerchantUrl();
 
             _context.SaveChanges();
@@ -64,16 +64,16 @@ namespace OAuthDemo.Controllers
         }
 
         // step 3
-        public ActionResult RetrieveAccessToken(Demo InputModel)
+        public ActionResult RetrieveAccessToken(RetrieveAccessTokenInput input)
         {
-            var SavedModel = GetUserDemo(InputModel.Id);
+            var SavedModel = GetUserDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
-            SavedModel.GrantType = InputModel.GrantType;
-            SavedModel.Code = InputModel.Code;
-            SavedModel.ClientId = InputModel.ClientId;
-            SavedModel.ClientSecret = InputModel.ClientSecret;
+            SavedModel.GrantType = input.GrantType;
+            SavedModel.Code = input.Code;
+            SavedModel.ClientId = input.ClientId;
+            SavedModel.ClientSecret = input.ClientSecret;
 
             try
             {
@@ -93,16 +93,16 @@ namespace OAuthDemo.Controllers
         }
 
         // step 4
-        public ActionResult ChargeCreditCard(Demo InputModel)
+        public ActionResult ChargeCreditCard(ChargeCreditCardInput input)
         {
-            var SavedModel = GetUserDemo(InputModel.Id);
+            var SavedModel = GetUserDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
-            SavedModel.AccessToken = InputModel.AccessToken;
-            SavedModel.CardNumber = InputModel.CardNumber;
-            SavedModel.ExpirationDate = InputModel.ExpirationDate;
-            SavedModel.Amount = InputModel.Amount;
+            SavedModel.AccessToken = input.AccessToken;
+            SavedModel.CardNumber = input.CardNumber;
+            SavedModel.ExpirationDate = input.ExpirationDate;
+            SavedModel.Amount = input.Amount;
 
             try
             {
@@ -121,14 +121,14 @@ namespace OAuthDemo.Controllers
             return View("Index", SavedModel);
         }
 
-        public ActionResult GetTransactionDetails(Demo InputModel)
+        public ActionResult GetTransactionDetails(GetTransactionDetailsInput input)
         {
-            var SavedModel = GetUserDemo(InputModel.Id);
+            var SavedModel = GetUserDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
-            SavedModel.AccessToken = InputModel.AccessToken;
-            SavedModel.TransactionId = InputModel.TransactionId;
+            SavedModel.AccessToken = input.AccessToken;
+            SavedModel.TransactionId = input.TransactionId;
 
             try
             {
@@ -147,16 +147,16 @@ namespace OAuthDemo.Controllers
         }
 
         // step 5
-        public ActionResult RefreshAccessToken(Demo InputModel)
+        public ActionResult RefreshAccessToken(RefreshAccessTokenInput input)
         {
-            var SavedModel = GetUserDemo(InputModel.Id);
+            var SavedModel = GetUserDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
-            SavedModel.ClientId = InputModel.ClientId;
-            SavedModel.ClientSecret = InputModel.ClientSecret;
-            SavedModel.GrantType = InputModel.GrantType;
-            SavedModel.RefreshToken = InputModel.RefreshToken;
+            SavedModel.ClientId = input.ClientId;
+            SavedModel.ClientSecret = input.ClientSecret;
+            SavedModel.GrantType = input.GrantType;
+            SavedModel.RefreshToken = input.RefreshToken;
 
             try
             {
