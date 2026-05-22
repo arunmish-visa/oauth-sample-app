@@ -43,6 +43,7 @@ namespace OAuthDemo.Models
         }
 
         public string Id { get; set; }
+        public string UserId { get; set; }
 
         // Step 1
         public string ClientId { get; set; }

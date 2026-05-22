@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 
 using IO.Swagger.Client;
 using IO.Swagger.Api;
@@ -11,6 +12,7 @@ using OAuthDemo.Models;
 
 namespace OAuthDemo.Controllers
 {
+    [Authorize]
     public class DemoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,10 +20,19 @@ namespace OAuthDemo.Controllers
         {
             _context = new ApplicationDbContext();
         }
+
+        // Helper method to verify ownership
+        private Demo GetUserDemo(string id)
+        {
+            var userId = User.Identity.GetUserId();
+            return _context.Demos.SingleOrDefault(d => d.Id == id && d.UserId == userId);
+        }
+
         // GET: Demo
         public ActionResult Index()
         {
             Demo DemoModel = new Demo(Guid.NewGuid().ToString());
+            DemoModel.UserId = User.Identity.GetUserId();
             _context.Demos.Add(DemoModel);
             _context.SaveChanges();
             return View(DemoModel);
@@ -36,7 +47,10 @@ namespace OAuthDemo.Controllers
         public ActionResult RedirectMerchant(Demo InputModel)
         {
             System.Diagnostics.Debug.WriteLine(_context.Demos.ToString());
-            var SavedModel = _context.Demos.SingleOrDefault(d => d.Id == InputModel.Id);
+            var SavedModel = GetUserDemo(InputModel.Id);
+            if (SavedModel == null)
+                return new HttpUnauthorizedResult();
+            
             SavedModel.ClientId = InputModel.ClientId;
             SavedModel.RedirectUri = InputModel.RedirectUri;
             SavedModel.Read = InputModel.Read;
@@ -52,7 +66,10 @@ namespace OAuthDemo.Controllers
         // step 3
         public ActionResult RetrieveAccessToken(Demo InputModel)
         {
-            var SavedModel = _context.Demos.SingleOrDefault(d => d.Id == InputModel.Id);
+            var SavedModel = GetUserDemo(InputModel.Id);
+            if (SavedModel == null)
+                return new HttpUnauthorizedResult();
+            
             SavedModel.GrantType = InputModel.GrantType;
             SavedModel.Code = InputModel.Code;
             SavedModel.ClientId = InputModel.ClientId;
@@ -78,7 +95,10 @@ namespace OAuthDemo.Controllers
         // step 4
         public ActionResult ChargeCreditCard(Demo InputModel)
         {
-            var SavedModel = _context.Demos.SingleOrDefault(d => d.Id == InputModel.Id);
+            var SavedModel = GetUserDemo(InputModel.Id);
+            if (SavedModel == null)
+                return new HttpUnauthorizedResult();
+            
             SavedModel.AccessToken = InputModel.AccessToken;
             SavedModel.CardNumber = InputModel.CardNumber;
             SavedModel.ExpirationDate = InputModel.ExpirationDate;
@@ -103,7 +123,10 @@ namespace OAuthDemo.Controllers
 
         public ActionResult GetTransactionDetails(Demo InputModel)
         {
-            var SavedModel = _context.Demos.SingleOrDefault(d => d.Id == InputModel.Id);
+            var SavedModel = GetUserDemo(InputModel.Id);
+            if (SavedModel == null)
+                return new HttpUnauthorizedResult();
+            
             SavedModel.AccessToken = InputModel.AccessToken;
             SavedModel.TransactionId = InputModel.TransactionId;
 
@@ -126,7 +149,10 @@ namespace OAuthDemo.Controllers
         // step 5
         public ActionResult RefreshAccessToken(Demo InputModel)
         {
-            var SavedModel = _context.Demos.SingleOrDefault(d => d.Id == InputModel.Id);
+            var SavedModel = GetUserDemo(InputModel.Id);
+            if (SavedModel == null)
+                return new HttpUnauthorizedResult();
+            
             SavedModel.ClientId = InputModel.ClientId;
             SavedModel.ClientSecret = InputModel.ClientSecret;
             SavedModel.GrantType = InputModel.GrantType;
