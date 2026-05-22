@@ -22,8 +22,8 @@ namespace OAuthDemo.Models
 
         public Demo()
         {
-            ClientId = "4dp5b7gRqk";
-            ClientSecret = "fa3a5b16753d09b24bb44243605a4a98";
+            ClientId = ConfigurationManager.AppSettings["ClientId"] ?? "4dp5b7gRqk";
+            ClientSecret = ConfigurationManager.AppSettings["ClientSecret"] ?? "";
             RedirectUri = "https://developer.authorize.net/api/reference/index.html";
             Read = true;
             Write = true;
