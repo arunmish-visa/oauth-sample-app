@@ -28,7 +28,10 @@ namespace OAuthDemo.Models
 
         public Demo()
         {
-            ClientId = ConfigurationManager.AppSettings["ClientId"] ?? "4dp5b7gRqk";
+            // ClientId / ClientSecret must come from Web.config <appSettings> (use placeholders
+            // [YOUR_CLIENT_ID] / [YOUR_CLIENT_SECRET] until you fill in your own sandbox values).
+            // Obtain values from the Authorize.Net Sandbox portal — see README for the procedure.
+            ClientId = ConfigurationManager.AppSettings["ClientId"] ?? "";
             ClientSecret = ConfigurationManager.AppSettings["ClientSecret"] ?? "";
             RedirectUri = "https://developer.authorize.net/api/reference/index.html";
             Read = true;
