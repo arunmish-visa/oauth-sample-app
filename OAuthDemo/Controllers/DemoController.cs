@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
 
 using IO.Swagger.Client;
 using IO.Swagger.Api;
@@ -12,29 +11,51 @@ using OAuthDemo.Models;
 
 namespace OAuthDemo.Controllers
 {
-    [Authorize]
+    // This educational demo is intentionally usable without a login. To still prevent
+    // IDOR (one visitor tampering with a Demo record created by another visitor), each
+    // Demo is bound to the browser Session that created it, and every action validates
+    // that the requested Id belongs to the current session before touching it.
     public class DemoController : Controller
     {
+        private const string OwnedDemoIdsKey = "OwnedDemoIds";
+
         private readonly ApplicationDbContext _context;
         public DemoController()
         {
             _context = new ApplicationDbContext();
         }
 
-        // Helper method to verify ownership
-        private Demo GetUserDemo(string id)
+        // The set of Demo Ids created by (and therefore owned by) the current session.
+        private HashSet<string> OwnedDemoIds
         {
-            var userId = User.Identity.GetUserId();
-            return _context.Demos.SingleOrDefault(d => d.Id == id && d.UserId == userId);
+            get
+            {
+                var owned = Session[OwnedDemoIdsKey] as HashSet<string>;
+                if (owned == null)
+                {
+                    owned = new HashSet<string>();
+                    Session[OwnedDemoIdsKey] = owned;
+                }
+                return owned;
+            }
+        }
+
+        // Returns the Demo only if it belongs to the current session; otherwise null,
+        // so callers can reject the request instead of acting on someone else's record.
+        private Demo GetOwnedDemo(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !OwnedDemoIds.Contains(id))
+                return null;
+            return _context.Demos.SingleOrDefault(d => d.Id == id);
         }
 
         // GET: Demo
         public ActionResult Index()
         {
             Demo DemoModel = new Demo(Guid.NewGuid().ToString());
-            DemoModel.UserId = User.Identity.GetUserId();
             _context.Demos.Add(DemoModel);
             _context.SaveChanges();
+            OwnedDemoIds.Add(DemoModel.Id); // record session ownership for IDOR checks
             return View(DemoModel);
         }
 
@@ -47,7 +68,7 @@ namespace OAuthDemo.Controllers
         public ActionResult RedirectMerchant(RedirectMerchantInput input)
         {
             System.Diagnostics.Debug.WriteLine(_context.Demos.ToString());
-            var SavedModel = GetUserDemo(input.Id);
+            var SavedModel = GetOwnedDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
@@ -66,7 +87,7 @@ namespace OAuthDemo.Controllers
         // step 3
         public ActionResult RetrieveAccessToken(RetrieveAccessTokenInput input)
         {
-            var SavedModel = GetUserDemo(input.Id);
+            var SavedModel = GetOwnedDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
@@ -97,7 +118,7 @@ namespace OAuthDemo.Controllers
         // step 4
         public ActionResult ChargeCreditCard(ChargeCreditCardInput input)
         {
-            var SavedModel = GetUserDemo(input.Id);
+            var SavedModel = GetOwnedDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
@@ -125,7 +146,7 @@ namespace OAuthDemo.Controllers
 
         public ActionResult GetTransactionDetails(GetTransactionDetailsInput input)
         {
-            var SavedModel = GetUserDemo(input.Id);
+            var SavedModel = GetOwnedDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             
@@ -151,7 +172,7 @@ namespace OAuthDemo.Controllers
         // step 5
         public ActionResult RefreshAccessToken(RefreshAccessTokenInput input)
         {
-            var SavedModel = GetUserDemo(input.Id);
+            var SavedModel = GetOwnedDemo(input.Id);
             if (SavedModel == null)
                 return new HttpUnauthorizedResult();
             

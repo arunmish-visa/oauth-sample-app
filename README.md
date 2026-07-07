@@ -9,8 +9,6 @@ This repository contains a **sample / educational application** that demonstrate
 > - **Backend target:** Authorize.Net **Sandbox only** (`https://sandbox.authorize.net`). There is no production URL anywhere in the codebase.
 > - **Data:** Uses an attached `LocalDb` (`(LocalDb)\MSSQLLocalDB`) on the developer's own machine. No shared database, no production data.
 > - **Credentials:** Sample / placeholder values only (e.g., `[YOUR_CLIENT_ID]`, `[YOUR_CLIENT_SECRET]`). Real credentials must be obtained by the developer from the Authorize.Net Sandbox portal and used **only locally** in `Web.config` `<appSettings>`.
->
-> 📄 **Full security context, threat model, and AI SAST `poc_personal` validation guidance:** see [`SECURITY-CONTEXT.md`](./SECURITY-CONTEXT.md).
 
 ## **How to Use the Sample Application?**
 
@@ -47,6 +45,7 @@ public Demo()
     ClientSecret = ConfigurationManager.AppSettings["ClientSecret"] ?? "";
     // …
 }
+```
 
 ![alt text](https://github.com/AuthorizeNet/oauth-sample-app/blob/master/OAuthDemo/Screenshots/Image2.png )
 
@@ -126,13 +125,11 @@ Refresh Token is revoked immediately. Any previously issued Access Token will be
 
 
 
-Note: If the OAuthDemo application is running on a network which is behind a proxy, you may have to add below settings in the  web.config file of the OAuth Demo application project to access the API endpoint.
+Note: If the OAuthDemo application is running on a network which is behind a proxy, you may have to add the settings below to the `Web.config` file of the OAuth Demo application project to access the API endpoint.
 
-&lt;system.net&gt;
-
-                    &lt;defaultProxyuseDefaultCredentials=&quot;true&quot;enabled=&quot;true&quot;&gt;
-
-                    &lt;/defaultProxy&gt;
-
-&lt;/system.net&gt;
+```xml
+<system.net>
+  <defaultProxy useDefaultCredentials="true" enabled="true">
+  </defaultProxy>
+</system.net>
 ```
